@@ -1,0 +1,55 @@
+name: Update VLESS list
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"   # every 6 hours
+  workflow_dispatch:          # manual run button
+
+permissions:
+  contents: write             # allow committing results back
+
+concurrency:
+  group: update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install xray-core
+        run: |
+          set -e
+          mkdir -p "$HOME/.local/bin"
+          curl -fsSL -o /tmp/xray.zip \
+            https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-64.zip
+          unzip -o /tmp/xray.zip -d /tmp/xray >/dev/null
+          install /tmp/xray/xray "$HOME/.local/bin/xray"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Collect and test
+        env:
+          XRAY_BIN: xray
+          TEST_CONCURRENCY: "80"
+          TEST_TIMEOUT: "6"
+          MAX_TEST: "6000"
+          REPO_SLUG: ${{ github.repository }}
+        run: python main.py
+
+      - name: Commit results
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add sub.txt vless.txt README.md
+          if git diff --cached --quiet; then
+            echo "No changes."
+          else
+            git commit -m "chore: update vless list ($(date -u +%Y-%m-%dT%H:%MZ))"
+            git push
+          fi

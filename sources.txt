@@ -1,0 +1,9 @@
+# VLESS subscription sources — one URL per line. Lines starting with # are ignored.
+# Each URL serves either plain text (one config per line) or a base64-encoded blob.
+# The collector fetches the LATEST content every run, so sources updating on their
+# own schedule are always picked up.
+https://raw.githubusercontent.com/Epodonios/v2ray-configs/main/Splitted-By-Protocol/vless.txt
+https://raw.githubusercontent.com/Kolandone/v2raycollector/main/vless.txt
+https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/main/mci/sub_1.txt
+https://raw.githubusercontent.com/miladtahanian/V2RayCFGDumper/main/sub.txt
+https://raw.githubusercontent.com/ermaozi/get_subscribe/main/subscribe/v2ray.txt
